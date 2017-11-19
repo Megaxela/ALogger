@@ -2,9 +2,11 @@
 #include <sstream>
 #include <SystemTools.h>
 #include <cstdint>
+#include <algorithm>
 #include "Loggers/AbstractLogger.hpp"
 
 AbstractLogger::AbstractLogger() :
+    m_logsListeners(),
     m_maxLogFileSizeBytes(static_cast<uint64_t>(512 * 1024)),
     m_formatString("%{DATETIME} %{FILENAME}:%{LINE} [%{CONTEXT}] %{ERROR_CLASS}: %{MESSAGE}"),
     m_fileLogPath("logs"),
@@ -53,6 +55,19 @@ void AbstractLogger::log(AbstractLogger::ErrorClass errorClass,
     {
         messageObject.filename = filename;
     }
+
+    // Removing data listeners if they have reference counter value 1
+    m_logsListeners.erase(
+            std::remove_if(
+                    m_logsListeners.begin(),
+                    m_logsListeners.end(),
+                    [](Logger::LogsListenerPtr ptr)
+                    {
+                        return ptr.use_count() <= 1;
+                    }
+            ),
+            m_logsListeners.end()
+    );
 
     onNewMessage(messageObject);
 }
@@ -158,19 +173,19 @@ std::string AbstractLogger::messageToString(const AbstractLogger::Message& messa
 
         switch (message.errorClass)
         {
-        case Unknown:
+        case ErrorClass::Unknown:
             errorClass = "Unknown";
             break;
-        case Debug:
+        case ErrorClass::Debug:
             errorClass = "Debug";
             break;
-        case Info:
+        case ErrorClass::Info:
             errorClass = "Info";
             break;
-        case Warning:
+        case ErrorClass::Warning:
             errorClass = "Warning";
             break;
-        case Error:
+        case ErrorClass::Error:
             errorClass = "Error";
             break;
         }
@@ -277,3 +292,28 @@ std::string AbstractLogger::getLogPath() const
     return path;
 }
 
+void AbstractLogger::addLogsListener(Logger::LogsListenerPtr listener)
+{
+    m_logsListeners.push_back(listener);
+}
+
+void AbstractLogger::removeLogsListener(Logger::LogsListenerPtr listener)
+{
+    auto finded = std::find(
+            m_logsListeners.begin(),
+            m_logsListeners.end(),
+            listener
+    );
+
+    if (finded == m_logsListeners.end())
+    {
+        return;
+    }
+
+    m_logsListeners.erase(finded);
+}
+
+void AbstractLogger::waitForLogToBeWritten()
+{
+
+}

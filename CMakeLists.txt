@@ -25,7 +25,7 @@ set(INCLUDE_FILES
         include/SystemTools.h
         include/CurrentLogger.hpp
         include/Stream.hpp
-)
+        include/LogsListener.hpp)
 
 add_library(ALogger
         ${SOURCE_FILES}

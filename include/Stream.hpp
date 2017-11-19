@@ -35,7 +35,7 @@ namespace Logger
          * @param classname Next message classname.
          * @param function Next message funciton.
          */
-        void newMessage(AbstractLogger::Ptr logger,
+        void newMessage(LoggerPtr logger,
                         AbstractLogger::ErrorClass errorClass,
                         const char* filename,
                         int line,
@@ -53,7 +53,7 @@ namespace Logger
     private:
         std::string m_ss;
 
-        AbstractLogger::Ptr m_logger;
+        LoggerPtr m_logger;
         AbstractLogger::ErrorClass m_errorClass;
         const char* m_filename;
         int m_line;
@@ -76,7 +76,7 @@ namespace Logger
          * @param classname Class name.
          * @param function Function name.
          */
-        Stream(AbstractLogger::Ptr logger,
+        Stream(LoggerPtr logger,
                AbstractLogger::ErrorClass errorClass,
                const char* filename,
                int line,

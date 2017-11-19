@@ -20,7 +20,7 @@
 #define ErrorF()    Logger::Stream(CurrentLogger::i(), AbstractLogger::ErrorClass::Error,   __FILENAME__, __LINE__, std::string(), __FUNCTION__)
 
 #define DebugEx(CLASSNAME)    Logger::Stream(CurrentLogger::i(), AbstractLogger::ErrorClass::Debug,   __FILENAME__, __LINE__, CLASSNAME, __FUNCTION__)
-#define InfoEx(CLASSNAME)     Logger::Stream(CurrentLogger::i(), AbstractLogger::ErrorClass::Log,     __FILENAME__, __LINE__, CLASSNAME, __FUNCTION__)
+#define InfoEx(CLASSNAME)     Logger::Stream(CurrentLogger::i(), AbstractLogger::ErrorClass::Info,     __FILENAME__, __LINE__, CLASSNAME, __FUNCTION__)
 #define WarningEx(CLASSNAME)  Logger::Stream(CurrentLogger::i(), AbstractLogger::ErrorClass::Warning, __FILENAME__, __LINE__, CLASSNAME, __FUNCTION__)
 #define ErrorEx(CLASSNAME)    Logger::Stream(CurrentLogger::i(), AbstractLogger::ErrorClass::Error,   __FILENAME__, __LINE__, CLASSNAME, __FUNCTION__)
 
@@ -35,13 +35,13 @@ public:
      * @brief Method for getting current global logger.
      * @return Pointer to current logger.
      */
-    static AbstractLogger::Ptr i();
+    static LoggerPtr i();
 
     /**
      * @brief Method for setting current logger.
      * @param logger Current logger.
      */
-    static void setCurrentLogger(AbstractLogger::Ptr logger);
+    static void setCurrentLogger(LoggerPtr logger);
 
 private:
     /**
@@ -49,6 +49,6 @@ private:
      */
     CurrentLogger();
 
-    static AbstractLogger::Ptr m_logger;
+    static LoggerPtr m_logger;
 };
 

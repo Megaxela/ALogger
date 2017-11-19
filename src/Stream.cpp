@@ -16,7 +16,7 @@ Logger::StreamBuffer::StreamBuffer() :
 
 }
 
-void Logger::StreamBuffer::newMessage(AbstractLogger::Ptr logger,
+void Logger::StreamBuffer::newMessage(LoggerPtr logger,
                                       AbstractLogger::ErrorClass errorClass,
                                       const char *filename,
                                       int line,
@@ -59,7 +59,7 @@ int Logger::StreamBuffer::overflow(int __c)
 
 static thread_local Logger::StreamBuffer streamBuffer;
 
-Logger::Stream::Stream(AbstractLogger::Ptr logger,
+Logger::Stream::Stream(LoggerPtr logger,
                        AbstractLogger::ErrorClass errorClass,
                        const char *filename,
                        int line,

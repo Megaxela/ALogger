@@ -4,12 +4,24 @@
 #include <chrono>
 #include <memory>
 #include <cstdint>
+#include <vector>
 
 #ifdef OS_LINUX
 #define __FILENAME__ (strrchr(__FILE__, '/') ? strrchr(__FILE__, '/') + 1 : __FILE__)
 #else //OS_WINDOWS
 #define __FILENAME__ (strrchr(__FILE__, '\\') ? strrchr(__FILE__, '\\') + 1 : __FILE__)
 #endif
+
+class AbstractLogger;
+
+using LoggerPtr = std::shared_ptr<AbstractLogger>;
+
+namespace Logger
+{
+    class LogsListener;
+
+    using LogsListenerPtr = std::shared_ptr<LogsListener>;
+}
 
 /**
  * @brief Class, that describes
@@ -19,9 +31,7 @@ class AbstractLogger
 {
 public:
 
-    using Ptr = std::shared_ptr<AbstractLogger>;
-
-    enum ErrorClass
+    enum class ErrorClass
     {
         Unknown    //< Service error class.
         , Debug    //< Information that is exceed in normal working process
@@ -41,12 +51,15 @@ public:
          */
         Message() :
             timePoint(),
-            errorClass(Unknown),
+            errorClass(ErrorClass::Unknown),
             message(),
             filename(nullptr),
             context(),
             line(0)
         {}
+
+        Message(const Message&) = default;
+        Message& operator=(const Message&) = default;
 
         std::chrono::system_clock::time_point timePoint;
         ErrorClass errorClass;
@@ -161,6 +174,23 @@ public:
      */
     std::string format() const;
 
+    /**
+     * @brief Method for adding log listener.
+     * @param listener Listener.
+     */
+    void addLogsListener(Logger::LogsListenerPtr listener);
+
+    /**
+     * @brief Method for removing logs listener.
+     * @param listener Listener.
+     */
+    void removeLogsListener(Logger::LogsListenerPtr listener);
+
+    /**
+     * @brief Method for waiting logs to be written.
+     */
+    virtual void waitForLogToBeWritten();
+
 protected:
 
     /**
@@ -189,6 +219,8 @@ protected:
 private:
 
     std::string classPlusFunction(const std::string& classname, const char* function);
+
+    std::vector<Logger::LogsListenerPtr> m_logsListeners;
 
     int64_t m_maxLogFileSizeBytes;
     std::string m_formatString;
