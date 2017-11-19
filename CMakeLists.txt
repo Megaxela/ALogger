@@ -11,11 +11,23 @@ else()
     add_definitions(-DOS_LINUX)
 endif()
 
-add_executable(ALogger
-        main.cpp
+set(SOURCE_FILES
         src/Loggers/AbstractLogger.cpp
-        include/Loggers/AbstractLogger.hpp
         src/Loggers/BasicLogger.cpp
-        include/Loggers/BasicLogger.hpp
         src/SystemTools.cpp
-        include/SystemTools.h src/CurrentLogger.cpp include/CurrentLogger.hpp src/Stream.cpp include/Stream.hpp)
+        src/CurrentLogger.cpp
+        src/Stream.cpp
+)
+
+set(INCLUDE_FILES
+        include/Loggers/AbstractLogger.hpp
+        include/Loggers/BasicLogger.hpp
+        include/SystemTools.h
+        include/CurrentLogger.hpp
+        include/Stream.hpp
+)
+
+add_library(ALogger
+        ${SOURCE_FILES}
+        ${INCLUDE_FILES}
+)
