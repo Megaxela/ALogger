@@ -13,6 +13,7 @@ endif()
 
 set(SOURCE_FILES
         src/Loggers/AbstractLogger.cpp
+        src/Loggers/AsyncLogger.cpp
         src/Loggers/BasicLogger.cpp
         src/SystemTools.cpp
         src/CurrentLogger.cpp
@@ -21,6 +22,7 @@ set(SOURCE_FILES
 
 set(INCLUDE_FILES
         include/Loggers/AbstractLogger.hpp
+        include/Loggers/AsyncLogger.hpp
         include/Loggers/BasicLogger.hpp
         include/SystemTools.h
         include/CurrentLogger.hpp
