@@ -5,7 +5,7 @@
 #include <mutex>
 #include "AbstractLogger.hpp"
 
-namespace Logger
+namespace Loggers
 {
     /**
      * @brief Default basic synchronous logger.

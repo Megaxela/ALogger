@@ -1,13 +1,13 @@
 #include <iostream>
 #include "Loggers/BasicLogger.hpp"
 
-Logger::BasicLogger::BasicLogger() :
+Loggers::BasicLogger::BasicLogger() :
     m_outputFile()
 {
 
 }
 
-void Logger::BasicLogger::onNewMessage(const AbstractLogger::Message& message)
+void Loggers::BasicLogger::onNewMessage(const AbstractLogger::Message& message)
 {
     // Generating string
     auto msg = messageToString(message);
@@ -15,7 +15,7 @@ void Logger::BasicLogger::onNewMessage(const AbstractLogger::Message& message)
     // Writing to file first (minimumFileOutputErrorClass is not thread safe)
     if (message.errorClass >= minimumFileOutputErrorClass())
     {
-        std::lock_guard<std::mutex> lock(m_fileMutex);
+        std::unique_lock<std::mutex> lock(m_fileMutex);
         if (m_outputFile.is_open())
         {
             m_outputFile.close();
@@ -33,7 +33,7 @@ void Logger::BasicLogger::onNewMessage(const AbstractLogger::Message& message)
     // Writing to terminal   (minimumTerminalOutputErrorClass is not thread safe)
     if (message.errorClass >= minimumTerminalOutputErrorClass())
     {
-        std::lock_guard<std::mutex> lock(m_terminalMutex);
+        std::unique_lock<std::mutex> lock(m_terminalMutex);
         if (message.errorClass <= ErrorClass::Info)
         {
             std::cout << msg << std::endl;
