@@ -4,7 +4,7 @@
 
 #include "Stream.hpp"
 
-Logger::StreamBuffer::StreamBuffer() :
+Loggers::StreamBuffer::StreamBuffer() :
     m_ss(),
     m_logger(nullptr),
     m_errorClass(AbstractLogger::ErrorClass::Unknown),
@@ -16,7 +16,7 @@ Logger::StreamBuffer::StreamBuffer() :
 
 }
 
-void Logger::StreamBuffer::newMessage(LoggerPtr logger,
+void Loggers::StreamBuffer::newMessage(LoggerPtr logger,
                                       AbstractLogger::ErrorClass errorClass,
                                       const char *filename,
                                       int line,
@@ -31,7 +31,7 @@ void Logger::StreamBuffer::newMessage(LoggerPtr logger,
     m_function = function;
 }
 
-void Logger::StreamBuffer::postMessage()
+void Loggers::StreamBuffer::postMessage()
 {
     if (!m_logger)
     {
@@ -50,16 +50,16 @@ void Logger::StreamBuffer::postMessage()
     m_ss.clear();
 }
 
-int Logger::StreamBuffer::overflow(int __c)
+int Loggers::StreamBuffer::overflow(int __c)
 {
     m_ss += (char) __c;
 
     return __c;
 }
 
-static thread_local Logger::StreamBuffer streamBuffer;
+static thread_local Loggers::StreamBuffer streamBuffer;
 
-Logger::Stream::Stream(LoggerPtr logger,
+Loggers::Stream::Stream(LoggerPtr logger,
                        AbstractLogger::ErrorClass errorClass,
                        const char *filename,
                        int line,
@@ -70,7 +70,7 @@ Logger::Stream::Stream(LoggerPtr logger,
     streamBuffer.newMessage(std::move(logger), errorClass, filename, line, classname, function);
 }
 
-Logger::Stream::~Stream()
+Loggers::Stream::~Stream()
 {
     streamBuffer.postMessage();
 }

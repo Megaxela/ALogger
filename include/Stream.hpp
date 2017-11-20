@@ -8,7 +8,7 @@
 #include <ostream>
 #include "Loggers/AbstractLogger.hpp"
 
-namespace Logger
+namespace Loggers
 {
     class StreamBuffer : public std::streambuf
     {

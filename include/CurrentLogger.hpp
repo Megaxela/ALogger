@@ -9,20 +9,20 @@
 #include <cstring>
 #include <SystemTools.h>
 
-#define Debug()    Logger::Stream(CurrentLogger::i(), AbstractLogger::ErrorClass::Debug,   __FILENAME__, __LINE__, SystemTools::getTypeName(*this), __FUNCTION__)
-#define Info()     Logger::Stream(CurrentLogger::i(), AbstractLogger::ErrorClass::Info,    __FILENAME__, __LINE__, SystemTools::getTypeName(*this), __FUNCTION__)
-#define Warning()  Logger::Stream(CurrentLogger::i(), AbstractLogger::ErrorClass::Warning, __FILENAME__, __LINE__, SystemTools::getTypeName(*this), __FUNCTION__)
-#define Error()    Logger::Stream(CurrentLogger::i(), AbstractLogger::ErrorClass::Error,   __FILENAME__, __LINE__, SystemTools::getTypeName(*this), __FUNCTION__)
+#define Debug()    Loggers::Stream(CurrentLogger::i(), AbstractLogger::ErrorClass::Debug,   __FILENAME__, __LINE__, SystemTools::getTypeName(*this), __FUNCTION__)
+#define Info()     Loggers::Stream(CurrentLogger::i(), AbstractLogger::ErrorClass::Info,    __FILENAME__, __LINE__, SystemTools::getTypeName(*this), __FUNCTION__)
+#define Warning()  Loggers::Stream(CurrentLogger::i(), AbstractLogger::ErrorClass::Warning, __FILENAME__, __LINE__, SystemTools::getTypeName(*this), __FUNCTION__)
+#define Error()    Loggers::Stream(CurrentLogger::i(), AbstractLogger::ErrorClass::Error,   __FILENAME__, __LINE__, SystemTools::getTypeName(*this), __FUNCTION__)
 
-#define DebugF()    Logger::Stream(CurrentLogger::i(), AbstractLogger::ErrorClass::Debug,   __FILENAME__, __LINE__, std::string(), __FUNCTION__)
-#define InfoF()     Logger::Stream(CurrentLogger::i(), AbstractLogger::ErrorClass::Info,    __FILENAME__, __LINE__, std::string(), __FUNCTION__)
-#define WarningF()  Logger::Stream(CurrentLogger::i(), AbstractLogger::ErrorClass::Warning, __FILENAME__, __LINE__, std::string(), __FUNCTION__)
-#define ErrorF()    Logger::Stream(CurrentLogger::i(), AbstractLogger::ErrorClass::Error,   __FILENAME__, __LINE__, std::string(), __FUNCTION__)
+#define DebugF()    Loggers::Stream(CurrentLogger::i(), AbstractLogger::ErrorClass::Debug,   __FILENAME__, __LINE__, std::string(), __FUNCTION__)
+#define InfoF()     Loggers::Stream(CurrentLogger::i(), AbstractLogger::ErrorClass::Info,    __FILENAME__, __LINE__, std::string(), __FUNCTION__)
+#define WarningF()  Loggers::Stream(CurrentLogger::i(), AbstractLogger::ErrorClass::Warning, __FILENAME__, __LINE__, std::string(), __FUNCTION__)
+#define ErrorF()    Loggers::Stream(CurrentLogger::i(), AbstractLogger::ErrorClass::Error,   __FILENAME__, __LINE__, std::string(), __FUNCTION__)
 
-#define DebugEx(CLASSNAME)    Logger::Stream(CurrentLogger::i(), AbstractLogger::ErrorClass::Debug,   __FILENAME__, __LINE__, CLASSNAME, __FUNCTION__)
-#define InfoEx(CLASSNAME)     Logger::Stream(CurrentLogger::i(), AbstractLogger::ErrorClass::Info,     __FILENAME__, __LINE__, CLASSNAME, __FUNCTION__)
-#define WarningEx(CLASSNAME)  Logger::Stream(CurrentLogger::i(), AbstractLogger::ErrorClass::Warning, __FILENAME__, __LINE__, CLASSNAME, __FUNCTION__)
-#define ErrorEx(CLASSNAME)    Logger::Stream(CurrentLogger::i(), AbstractLogger::ErrorClass::Error,   __FILENAME__, __LINE__, CLASSNAME, __FUNCTION__)
+#define DebugEx(CLASSNAME)    Loggers::Stream(CurrentLogger::i(), AbstractLogger::ErrorClass::Debug,   __FILENAME__, __LINE__, CLASSNAME, __FUNCTION__)
+#define InfoEx(CLASSNAME)     Loggers::Stream(CurrentLogger::i(), AbstractLogger::ErrorClass::Info,     __FILENAME__, __LINE__, CLASSNAME, __FUNCTION__)
+#define WarningEx(CLASSNAME)  Loggers::Stream(CurrentLogger::i(), AbstractLogger::ErrorClass::Warning, __FILENAME__, __LINE__, CLASSNAME, __FUNCTION__)
+#define ErrorEx(CLASSNAME)    Loggers::Stream(CurrentLogger::i(), AbstractLogger::ErrorClass::Error,   __FILENAME__, __LINE__, CLASSNAME, __FUNCTION__)
 
 /**
  * @brief Current logger singleton.
