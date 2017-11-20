@@ -38,6 +38,7 @@ public:
         , Info     //< Information that has to be some point messages.
         , Warning  //< Information that something was not good, but it was not critical or could be fixed automatically.
         , Error    //< Information that some error was acquired and application has to be closed.
+        , None     //< Messages with None error class will be ignored. This value has to be passed to 'minimumErrorClass' setters to suppress any output.
     };
 
     /**

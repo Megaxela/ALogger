@@ -38,6 +38,11 @@ void AbstractLogger::log(AbstractLogger::ErrorClass errorClass,
                  const char *function,
                  const std::string& message)
 {
+    if (errorClass == ErrorClass::None)
+    {
+        return;
+    }
+
     Message messageObject;
 
     // Getting current time
