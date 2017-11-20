@@ -24,6 +24,7 @@ set(INCLUDE_FILES
         include/Loggers/AbstractLogger.hpp
         include/Loggers/AsyncLogger.hpp
         include/Loggers/BasicLogger.hpp
+        include/LogsListener.hpp
         include/SystemTools.h
         include/CurrentLogger.hpp
         include/Stream.hpp
