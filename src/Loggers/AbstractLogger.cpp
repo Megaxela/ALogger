@@ -193,6 +193,16 @@ std::string AbstractLogger::messageToString(const AbstractLogger::Message& messa
         case ErrorClass::Error:
             errorClass = "Error";
             break;
+        case ErrorClass::None:
+            log(
+                ErrorClass::Error,
+                __FILENAME__,
+                __LINE__,
+                SystemTools::getTypeName(*this),
+                __FUNCTION__,
+                "Message with error class 'None' detected. You shall not push 'None' messages."
+            );
+            return std::string();
         }
 
         formed.replace(
