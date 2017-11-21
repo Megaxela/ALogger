@@ -7,7 +7,7 @@
 
 AbstractLogger::AbstractLogger() :
     m_logsListeners(),
-    m_maxLogFileSizeBytes(static_cast<uint64_t>(512 * 1024)),
+    m_maxLogFileSizeBytes(static_cast<uint64_t>(2 * 1024 * 1024)),
     m_formatString("%{DATETIME} %{FILENAME}:%{LINE} [%{CONTEXT}] %{ERROR_CLASS}: %{MESSAGE}"),
     m_fileLogPath("logs"),
     m_sourceFilenameTruncationEnabled(false),
@@ -15,6 +15,16 @@ AbstractLogger::AbstractLogger() :
     m_minFileOutputErrorClass(ErrorClass::Info)
 {
 
+}
+
+void AbstractLogger::setMaximumLogFile(uint64_t bytes)
+{
+    m_maxLogFileSizeBytes = bytes;
+}
+
+uint64_t AbstractLogger::maximumLogFile() const
+{
+    return m_maxLogFileSizeBytes;
 }
 
 std::string AbstractLogger::classPlusFunction(const std::string& classname, const char *function)
@@ -281,21 +291,27 @@ std::string AbstractLogger::getLogPath() const
     // Opening current file
     std::string filename = "log.txt";
 
+    if (m_maxLogFileSizeBytes == 0)
+    {
+        return filename;
+    }
+
     std::string path = SystemTools::Path::join(m_fileLogPath, filename);
 
     auto filesize = SystemTools::Path::getFileSize(path);
 
     if (filesize > m_maxLogFileSizeBytes)
     {
-        int i;
+        uint64_t i;
         // Renaming to new one
         for (i = 0;
-             i < 1024 && SystemTools::Path::fileExists(path + "_" + std::to_string(i + 1));
+             i < std::numeric_limits<uint64_t>::max() &&
+             SystemTools::Path::fileExists(path + "_" + std::to_string(i + 1));
              ++i)
         {}
 
         // Ok, we received end
-        if (i == 1024)
+        if (i == std::numeric_limits<int>::max())
         {
             // Notify that everything is fucked up, duh
             return "";

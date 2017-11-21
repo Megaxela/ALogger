@@ -192,6 +192,24 @@ public:
      */
     virtual void waitForLogToBeWritten();
 
+    /**
+     * @brief Method for setting maximum log
+     * file size in bytes. If log file
+     * will be bigger than maximum value
+     * log rotation will be applied. If
+     * value will be 0 - there will no
+     * rotation.
+     * @param bytes Number of bytes.
+     */
+    void setMaximumLogFile(uint64_t bytes);
+
+    /**
+     * @brief Method for getting maximum log
+     * file size.
+     * @return Number of bytes.
+     */
+    uint64_t maximumLogFile() const;
+
 protected:
 
     /**
@@ -223,7 +241,7 @@ private:
 
     std::vector<Logger::LogsListenerPtr> m_logsListeners;
 
-    int64_t m_maxLogFileSizeBytes;
+    uint64_t m_maxLogFileSizeBytes;
     std::string m_formatString;
     std::string m_fileLogPath;
     bool m_sourceFilenameTruncationEnabled;
