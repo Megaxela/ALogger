@@ -298,7 +298,7 @@ std::string AbstractLogger::getLogPath() const
 
     std::string path = SystemTools::Path::join(m_fileLogPath, filename);
 
-    auto filesize = SystemTools::Path::getFileSize(path);
+    auto filesize = static_cast<uint64_t>(SystemTools::Path::getFileSize(path));
 
     if (filesize > m_maxLogFileSizeBytes)
     {
