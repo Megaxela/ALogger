@@ -3,8 +3,6 @@ project(ALogger)
 
 set(CMAKE_CXX_STANDARD 17)
 
-include_directories(include)
-
 if (WIN32)
     add_definitions(-DOS_WINDOWS)
 else()
@@ -33,4 +31,8 @@ set(INCLUDE_FILES
 add_library(ALogger
         ${SOURCE_FILES}
         ${INCLUDE_FILES}
+)
+
+target_include_directories(ALogger PUBLIC
+        include
 )
