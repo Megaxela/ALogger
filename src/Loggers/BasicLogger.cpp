@@ -2,7 +2,9 @@
 #include "Loggers/BasicLogger.hpp"
 
 Loggers::BasicLogger::BasicLogger() :
-    m_outputFile()
+    m_outputFile(),
+    m_fileMutex(),
+    m_terminalMutex()
 {
 
 }
