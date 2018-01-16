@@ -145,7 +145,7 @@ public:
      * there will no any file logs. Default value is "logs".
      * @param path Path to directory.
      */
-    void setLogPath(const std::string& path);
+    void setLogPath(std::string path);
 
     /**
      * @brief Method for getting path to directory
@@ -166,7 +166,7 @@ public:
      * %{MESSAGE}     - error message
      * @param format Format string.
      */
-    void setFormat(const std::string& format);
+    void setFormat(std::string format);
 
     /**
      * @brief Method for getting current format

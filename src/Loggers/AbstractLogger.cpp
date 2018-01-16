@@ -91,17 +91,17 @@ std::string AbstractLogger::messageToString(const AbstractLogger::Message& messa
 {
     auto formed = m_formatString;
 
-    size_t searchIterator;
+    std::string::size_type searchIterator = 0;
 
-    std::string datetimeKey = "%{DATETIME}";
-    std::string filenameKey = "%{FILENAME}";
-    std::string lineKey = "%{LINE}";
-    std::string contextKey = "%{CONTEXT}";
-    std::string classKey = "%{ERROR_CLASS}";
-    std::string messageKey = "%{MESSAGE}";
+    const std::string datetimeKey = "%{DATETIME}";
+    const std::string filenameKey = "%{FILENAME}";
+    const std::string lineKey = "%{LINE}";
+    const std::string contextKey = "%{CONTEXT}";
+    const std::string classKey = "%{ERROR_CLASS}";
+    const std::string messageKey = "%{MESSAGE}";
 
     // DATETIME
-    searchIterator = formed.find(datetimeKey);
+    searchIterator = formed.find(datetimeKey, searchIterator);
     if (searchIterator != std::string::npos)
     {
         auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(
@@ -148,7 +148,7 @@ std::string AbstractLogger::messageToString(const AbstractLogger::Message& messa
     }
 
     // FILENAME
-    searchIterator = formed.find(filenameKey);
+    searchIterator = formed.find(filenameKey, searchIterator);
     if (searchIterator != std::string::npos)
     {
         formed.replace(
@@ -159,7 +159,7 @@ std::string AbstractLogger::messageToString(const AbstractLogger::Message& messa
     }
 
     // LINE
-    searchIterator = formed.find(lineKey);
+    searchIterator = formed.find(lineKey, searchIterator);
     if (searchIterator != std::string::npos)
     {
         formed.replace(
@@ -170,7 +170,7 @@ std::string AbstractLogger::messageToString(const AbstractLogger::Message& messa
     }
 
     // CONTEXT
-    searchIterator = formed.find(contextKey);
+    searchIterator = formed.find(contextKey, searchIterator);
     if (searchIterator != std::string::npos)
     {
         formed.replace(
@@ -181,7 +181,7 @@ std::string AbstractLogger::messageToString(const AbstractLogger::Message& messa
     }
 
     // ERROR CLASS
-    searchIterator = formed.find(classKey);
+    searchIterator = formed.find(classKey, searchIterator);
     if (searchIterator != std::string::npos)
     {
         std::string errorClass;
@@ -223,7 +223,7 @@ std::string AbstractLogger::messageToString(const AbstractLogger::Message& messa
     }
 
     // MESSAGE
-    searchIterator = formed.find(messageKey);
+    searchIterator = formed.find(messageKey, searchIterator);
     if (searchIterator != std::string::npos)
     {
         formed.replace(
@@ -266,9 +266,9 @@ AbstractLogger::ErrorClass AbstractLogger::minimumFileOutputErrorClass() const
     return m_minFileOutputErrorClass;
 }
 
-void AbstractLogger::setLogPath(const std::string& path)
+void AbstractLogger::setLogPath(std::string path)
 {
-    m_fileLogPath = path;
+    m_fileLogPath = std::move(path);
 }
 
 std::string AbstractLogger::logPath() const
@@ -276,9 +276,9 @@ std::string AbstractLogger::logPath() const
     return m_fileLogPath;
 }
 
-void AbstractLogger::setFormat(const std::string& format)
+void AbstractLogger::setFormat(std::string format)
 {
-    m_formatString = format;
+    m_formatString = std::move(format);
 }
 
 std::string AbstractLogger::format() const
