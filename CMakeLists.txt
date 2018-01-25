@@ -1,6 +1,13 @@
 cmake_minimum_required(VERSION 3.5)
 project(ALogger)
 
+option(ALOGGER_BUILD_BENCHMARK_AND_TESTS "Build benchmark for logger" Off)
+
+if (${ALOGGER_BUILD_BENCHMARK_AND_TESTS})
+    add_subdirectory(tests)
+    add_subdirectory(benchmark)
+endif()
+
 set(CMAKE_CXX_STANDARD 17)
 
 if (WIN32)
