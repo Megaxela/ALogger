@@ -1,7 +1,3 @@
-//
-// Created by megaxela on 11/8/17.
-//
-
 #include "Stream.hpp"
 
 Loggers::StreamBuffer::StreamBuffer() :

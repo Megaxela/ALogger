@@ -1,7 +1,3 @@
-//
-// Created by megaxela on 09.11.16.
-//
-
 #include "SystemTools.h"
 #include <sstream>
 
