@@ -9,10 +9,10 @@
 #include "IostreamsLock.hpp"
 #include "Utilities.hpp"
 
-#define DebugF(L)    Loggers::Stream(L, AbstractLogger::ErrorClass::Debug,   __FILENAME__, __LINE__, std::string(), __FUNCTION__)
-#define InfoF(L)     Loggers::Stream(L, AbstractLogger::ErrorClass::Info,    __FILENAME__, __LINE__, std::string(), __FUNCTION__)
-#define WarningF(L)  Loggers::Stream(L, AbstractLogger::ErrorClass::Warning, __FILENAME__, __LINE__, std::string(), __FUNCTION__)
-#define ErrorF(L)    Loggers::Stream(L, AbstractLogger::ErrorClass::Error,   __FILENAME__, __LINE__, std::string(), __FUNCTION__)
+#define DebugF(L)    Loggers::Stream(L, AbstractLogger::ErrorClass::Debug,   __FILENAME__, __LINE__, std::this_thread::get_id(), std::string(), __FUNCTION__)
+#define InfoF(L)     Loggers::Stream(L, AbstractLogger::ErrorClass::Info,    __FILENAME__, __LINE__, std::this_thread::get_id(), std::string(), __FUNCTION__)
+#define WarningF(L)  Loggers::Stream(L, AbstractLogger::ErrorClass::Warning, __FILENAME__, __LINE__, std::this_thread::get_id(), std::string(), __FUNCTION__)
+#define ErrorF(L)    Loggers::Stream(L, AbstractLogger::ErrorClass::Error,   __FILENAME__, __LINE__, std::this_thread::get_id(), std::string(), __FUNCTION__)
 
 #define TEST_LOG_STRING "EXAMPLE_LOG_STRING"
 

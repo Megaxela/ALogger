@@ -1,6 +1,8 @@
 
 set(CMAKE_CXX_STANDARD 17)
 
+set(BENCHMARK_ENABLE_TESTING Off)
+
 if (EXISTS "${CMAKE_CURRENT_LIST_DIR}/benchmark/CMakeLists.txt")
     add_subdirectory(benchmark)
 endif()

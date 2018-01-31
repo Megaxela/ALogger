@@ -3,18 +3,21 @@
 #include <SystemTools.h>
 #include <cstdint>
 #include <algorithm>
+#include <map>
 #include "Loggers/AbstractLogger.hpp"
 
 AbstractLogger::AbstractLogger() :
     m_logsListeners(),
     m_maxLogFileSizeBytes(static_cast<uint64_t>(2 * 1024 * 1024)),
-    m_formatString("%{DATETIME} %{FILENAME}:%{LINE} [%{CONTEXT}] %{ERROR_CLASS}: %{MESSAGE}"),
+    m_formatString("%{DATETIME} %{FILENAME}:%{LINE} [%{THREAD}][%{CONTEXT}] %{ERROR_CLASS}: %{MESSAGE}"),
+    m_formatCache(),
     m_fileLogPath("logs"),
     m_sourceFilenameTruncationEnabled(false),
     m_minTerminalOutputErrorClass(ErrorClass::Info),
-    m_minFileOutputErrorClass(ErrorClass::Info)
+    m_minFileOutputErrorClass(ErrorClass::Info),
+    m_ss()
 {
-
+    cacheFormat();
 }
 
 void AbstractLogger::setMaximumLogFile(uint64_t bytes)
@@ -27,26 +30,25 @@ uint64_t AbstractLogger::maximumLogFile() const
     return m_maxLogFileSizeBytes;
 }
 
-std::string AbstractLogger::classPlusFunction(const std::string& classname, const char *function)
+std::string AbstractLogger::classPlusFunction(std::string classname, const char *function)
 {
-    auto copy = classname;
-
-    if (!copy.empty())
+    if (!classname.empty())
     {
-        copy += "::";
+        classname.append("::");
     }
 
-    copy += function;
+    classname.append(function);
 
-    return copy;
+    return classname;
 }
 
 void AbstractLogger::log(AbstractLogger::ErrorClass errorClass,
                  const char *filename,
                  int line,
-                 const std::string& classname,
+                 std::thread::id thread,
+                 std::string classname,
                  const char *function,
-                 const std::string& message)
+                 std::string message)
 {
     if (errorClass == ErrorClass::None)
     {
@@ -58,8 +60,9 @@ void AbstractLogger::log(AbstractLogger::ErrorClass errorClass,
     // Getting current time
     messageObject.timePoint = std::chrono::system_clock::now();
     messageObject.errorClass = errorClass;
-    messageObject.message = message;
-    messageObject.context = classPlusFunction(classname, function);
+    messageObject.message = std::move(message);
+    messageObject.thread = thread;
+    messageObject.context = std::move(classPlusFunction(std::move(classname), function));
     messageObject.line = line;
 
     if (m_sourceFilenameTruncationEnabled)
@@ -72,168 +75,134 @@ void AbstractLogger::log(AbstractLogger::ErrorClass errorClass,
     }
 
     // Removing data listeners if they have reference counter value 1
-    m_logsListeners.erase(
+
+    if (!m_logsListeners.empty())
+    {
+        m_logsListeners.erase(
             std::remove_if(
-                    m_logsListeners.begin(),
-                    m_logsListeners.end(),
-                    [](Logger::LogsListenerPtr ptr)
-                    {
-                        return ptr.use_count() <= 1;
-                    }
+                m_logsListeners.begin(),
+                m_logsListeners.end(),
+                [](Logger::LogsListenerPtr ptr)
+                {
+                    return ptr.use_count() <= 1;
+                }
             ),
             m_logsListeners.end()
-    );
+        );
+    }
 
     onNewMessage(messageObject);
 }
 
 std::string AbstractLogger::messageToString(const AbstractLogger::Message& message)
 {
-    auto formed = m_formatString;
+    m_ss.seekp(std::ios::beg);
 
-    std::string::size_type searchIterator = 0;
-
-    const std::string datetimeKey = "%{DATETIME}";
-    const std::string filenameKey = "%{FILENAME}";
-    const std::string lineKey = "%{LINE}";
-    const std::string contextKey = "%{CONTEXT}";
-    const std::string classKey = "%{ERROR_CLASS}";
-    const std::string messageKey = "%{MESSAGE}";
-
-    // DATETIME
-    searchIterator = formed.find(datetimeKey, searchIterator);
-    if (searchIterator != std::string::npos)
+    for (auto&& cache : m_formatCache)
     {
-        auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(
-            message.timePoint.time_since_epoch()
-        );
-
-        auto fractional_seconds = ms.count() % 1000;
-
-        auto time = std::chrono::system_clock::to_time_t(message.timePoint);
-        std::tm* now = std::localtime(&time);
-
-        std::stringstream ss;
-
-        ss << (now->tm_year + 1900) << '-';
-
-        ss.width(2);
-        ss.fill('0');
-        ss << (now->tm_mon + 1)     << '-';
-
-        ss.width(2);
-        ss.fill('0');
-        ss <<  now->tm_mday         << ' ';
-
-        ss.width(2);
-        ss.fill('0');
-        ss <<  now->tm_hour         << ':';
-
-        ss.width(2);
-        ss.fill('0');
-        ss <<  now->tm_min          << ':';
-
-        ss.width(2);
-        ss.fill('0');
-        ss <<  now->tm_sec          << ',';
-
-        ss.width(3);
-        ss <<  fractional_seconds;
-
-        formed.replace(
-            searchIterator,
-            datetimeKey.size(),
-            ss.str()
-        );
-    }
-
-    // FILENAME
-    searchIterator = formed.find(filenameKey, searchIterator);
-    if (searchIterator != std::string::npos)
-    {
-        formed.replace(
-            searchIterator,
-            filenameKey.size(),
-            message.filename
-        );
-    }
-
-    // LINE
-    searchIterator = formed.find(lineKey, searchIterator);
-    if (searchIterator != std::string::npos)
-    {
-        formed.replace(
-            searchIterator,
-            lineKey.size(),
-            std::to_string(message.line)
-        );
-    }
-
-    // CONTEXT
-    searchIterator = formed.find(contextKey, searchIterator);
-    if (searchIterator != std::string::npos)
-    {
-        formed.replace(
-            searchIterator,
-            contextKey.size(),
-            message.context
-        );
-    }
-
-    // ERROR CLASS
-    searchIterator = formed.find(classKey, searchIterator);
-    if (searchIterator != std::string::npos)
-    {
-        std::string errorClass;
-
-        switch (message.errorClass)
+        switch (cache.type)
         {
-        case ErrorClass::Unknown:
-            errorClass = "Unknown";
-            break;
-        case ErrorClass::Debug:
-            errorClass = "Debug";
-            break;
-        case ErrorClass::Info:
-            errorClass = "Info";
-            break;
-        case ErrorClass::Warning:
-            errorClass = "Warning";
-            break;
-        case ErrorClass::Error:
-            errorClass = "Error";
-            break;
-        case ErrorClass::None:
-            log(
-                ErrorClass::Error,
-                __FILENAME__,
-                __LINE__,
-                SystemTools::getTypeName(*this),
-                __FUNCTION__,
-                "Message with error class 'None' detected. You shall not push 'None' messages."
+        case FormatCache::Type::DateTime:
+        {
+            auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(
+                message.timePoint.time_since_epoch()
             );
-            return std::string();
+
+            auto fractional_seconds = ms.count() % 1000;
+
+            auto time = std::chrono::system_clock::to_time_t(message.timePoint);
+            std::tm* now = std::localtime(&time);
+
+            m_ss << (now->tm_year + 1900) << '-';
+
+            m_ss.width(2);
+            m_ss.fill('0');
+            m_ss << (now->tm_mon + 1)     << '-';
+
+            m_ss.width(2);
+            m_ss.fill('0');
+            m_ss <<  now->tm_mday         << ' ';
+
+            m_ss.width(2);
+            m_ss.fill('0');
+            m_ss <<  now->tm_hour         << ':';
+
+            m_ss.width(2);
+            m_ss.fill('0');
+            m_ss <<  now->tm_min          << ':';
+
+            m_ss.width(2);
+            m_ss.fill('0');
+            m_ss <<  now->tm_sec          << ',';
+
+            m_ss.width(3);
+            m_ss <<  fractional_seconds;
+            break;
         }
-
-        formed.replace(
-            searchIterator,
-            classKey.size(),
-            errorClass
-        );
+        case FormatCache::Type::FileName:
+            m_ss << message.filename;
+            break;
+        case FormatCache::Type::Line:
+            m_ss << message.line;
+            break;
+        case FormatCache::Type::Thread:
+        {
+            m_ss << "0x";
+            auto old = m_ss.fill();
+            m_ss.fill('0');
+            auto oldWidth = m_ss.width();
+            m_ss.width(16);
+            m_ss << std::hex << message.thread << std::dec;
+            m_ss.fill(old);
+            m_ss.width(oldWidth);
+            break;
+        }
+        case FormatCache::Type::Context:
+            m_ss << message.context;
+            break;
+        case FormatCache::Type::ErrorClass:
+        {
+            switch (message.errorClass)
+            {
+            case ErrorClass::Unknown:
+                m_ss << "Unknown";
+                break;
+            case ErrorClass::Debug:
+                m_ss << "Debug";
+                break;
+            case ErrorClass::Info:
+                m_ss << "Info";
+                break;
+            case ErrorClass::Warning:
+                m_ss << "Warning";
+                break;
+            case ErrorClass::Error:
+                m_ss << "Error";
+                break;
+            case ErrorClass::None:
+                log(
+                    ErrorClass::Error,
+                    __FILENAME__,
+                    __LINE__,
+                    std::this_thread::get_id(),
+                    std::move(SystemTools::getTypeName(*this)),
+                    __FUNCTION__,
+                    "Message with error class 'None' detected. You shall not push 'None' messages."
+                );
+                return std::string();
+            }
+            break;
+        }
+        case FormatCache::Type::Message:
+            m_ss << message.message;
+            break;
+        case FormatCache::Type::String:
+            m_ss << cache.value;
+            break;
+        }
     }
 
-    // MESSAGE
-    searchIterator = formed.find(messageKey, searchIterator);
-    if (searchIterator != std::string::npos)
-    {
-        formed.replace(
-            searchIterator,
-            messageKey.size(),
-            message.message
-        );
-    }
-
-    return formed;
+    return m_ss.str();
 }
 
 void AbstractLogger::setFilenameTruncationEnabled(bool truncate)
@@ -279,6 +248,8 @@ std::string AbstractLogger::logPath() const
 void AbstractLogger::setFormat(std::string format)
 {
     m_formatString = std::move(format);
+
+    cacheFormat();
 }
 
 std::string AbstractLogger::format() const
@@ -347,4 +318,75 @@ void AbstractLogger::removeLogsListener(Logger::LogsListenerPtr listener)
 void AbstractLogger::waitForLogToBeWritten()
 {
 
+}
+
+void AbstractLogger::cacheFormat()
+{
+
+    const std::map<std::string_view, FormatCache::Type> variables = {
+        {"%{DATETIME}",    FormatCache::Type::DateTime  },
+        {"%{FILENAME}",    FormatCache::Type::FileName  },
+        {"%{LINE}",        FormatCache::Type::Line      },
+        {"%{CONTEXT}",     FormatCache::Type::Context   },
+        {"%{ERROR_CLASS}", FormatCache::Type::ErrorClass},
+        {"%{MESSAGE}",     FormatCache::Type::Message   },
+        {"%{THREAD}",      FormatCache::Type::Thread    },
+    };
+
+    m_formatCache.clear();
+
+    std::string::size_type index = 0;
+    std::string::size_type endIndex = 0;
+    std::string::size_type previousString = 0;
+    auto mapIterator = variables.end();
+
+    while (index < m_formatString.size())
+    {
+        // Searching for `%{` symbol
+        index = m_formatString.find("%{", index);
+
+        // If was not found, string is finished.
+        if (index == std::string::npos)
+        {
+            m_formatCache.emplace_back(
+                FormatCache::Type::String,
+                std::string_view(m_formatString.c_str() + previousString, m_formatString.size() - previousString)
+            );
+
+            break;
+        }
+
+        // Searching for close symbol
+        endIndex = m_formatString.find('}', index);
+
+        // Searching for founded expected variable
+        std::string_view subString(m_formatString.c_str() + index, (endIndex + 1) - index);
+
+        mapIterator = variables.find(subString);
+
+        // If it's not variable
+        if (mapIterator == variables.end())
+        {
+            index += 1;
+            continue;
+        }
+
+        // If it's variable, pushing string before,
+        // if it's not empty. Pushing variable
+        if (previousString < index)
+        {
+            m_formatCache.emplace_back(
+                    FormatCache::Type::String,
+                    std::string_view(m_formatString.c_str() + previousString, index - previousString)
+            );
+        }
+
+        // Pushing variable and moving iterators
+        m_formatCache.emplace_back(
+                mapIterator->second
+        );
+
+        previousString = endIndex + 1; // size of '}' = 1
+        index = endIndex + 1;
+    }
 }
