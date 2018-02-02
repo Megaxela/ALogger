@@ -47,7 +47,7 @@ int main(int argc, char** argv)
     // You can define your own format string.
     // Default format string is
     // "%{DATETIME} %{FILENAME}:%{LINE} [%{THREAD}][%{CONTEXT}] %{ERROR_CLASS}: %{MESSAGE}"
-    CurrentLogger::i()->setFormat("[%{DATETIME}] %{FILENAME}:${LINE} [%{CONTEXT}] <%{THREAD}> {%{ERROR_CLASS}}: %{MESSAGE}");
+    CurrentLogger::i()->setFormat("[%{DATETIME}] %{FILENAME}:%{LINE} [%{CONTEXT}] <%{THREAD}> {%{ERROR_CLASS}}: %{MESSAGE}");
     
     // Log has filename, where log was called, so it 
     // can be truncated (until filename), or has full
