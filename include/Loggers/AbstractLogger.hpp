@@ -5,6 +5,8 @@
 #include <memory>
 #include <cstdint>
 #include <vector>
+#include <sstream>
+#include <thread>
 
 #ifdef OS_LINUX
 #define __FILENAME__ (strrchr(__FILE__, '/') ? strrchr(__FILE__, '/') + 1 : __FILE__)
@@ -54,6 +56,7 @@ public:
             timePoint(),
             errorClass(ErrorClass::Unknown),
             message(),
+            thread(0),
             filename(nullptr),
             context(),
             line(0)
@@ -65,6 +68,7 @@ public:
         std::chrono::system_clock::time_point timePoint;
         ErrorClass errorClass;
         std::string message;
+        std::thread::id thread;
         const char* filename;
         std::string context;
         int line;
@@ -87,13 +91,15 @@ public:
      * @param file Filename.
      * @param classname Log context. For example class and method names or function name.
      * @param line Line in source code.
+     * @param thread Callee thread id.
      */
     void log(AbstractLogger::ErrorClass errorClass,
              const char *filename,
              int line,
-             const std::string& classname,
+             std::thread::id thread,
+             std::string classname,
              const char *function,
-             const std::string& message);
+             std::string message);
 
     /**
      * @brief Method for setting is truncation of
@@ -161,6 +167,7 @@ public:
      * %{DATETIME}    - date and time info.
      * %{FILENAME}    - source filename.
      * %{LINE}        - source file line.
+     * ${THREAD}      - thread context.
      * %{CONTEXT}     - call context.
      * %{ERROR_CLASS} - error class name.
      * %{MESSAGE}     - error message
@@ -237,15 +244,61 @@ protected:
 
 private:
 
-    std::string classPlusFunction(const std::string& classname, const char* function);
+    /**
+     * @brief Method for caching
+     * current format string to
+     * optimize string forming.
+     */
+    void cacheFormat();
+
+    struct FormatCache
+    {
+        /*
+         * %{DATETIME}    - date and time info.
+         * %{FILENAME}    - source filename.
+         * %{LINE}        - source file line.
+         * ${THREAD}      - thread context.
+         * %{CONTEXT}     - call context.
+         * %{ERROR_CLASS} - error class name.
+         * %{MESSAGE}     - error message
+         */
+        enum class Type
+        {
+            DateTime,
+            FileName,
+            Line,
+            Thread,
+            Context,
+            ErrorClass,
+            Message,
+            String
+        };
+
+        explicit FormatCache(Type type) :
+            type(type),
+            value()
+        {}
+
+        FormatCache(Type type, std::string_view view) :
+            type(type),
+            value(std::move(view))
+        {}
+
+        Type type;
+        std::string_view value;
+    };
+
+    std::string classPlusFunction(std::string classname, const char* function);
 
     std::vector<Logger::LogsListenerPtr> m_logsListeners;
 
     uint64_t m_maxLogFileSizeBytes;
     std::string m_formatString;
+    std::vector<FormatCache> m_formatCache;
     std::string m_fileLogPath;
     bool m_sourceFilenameTruncationEnabled;
     ErrorClass m_minTerminalOutputErrorClass;
     ErrorClass m_minFileOutputErrorClass;
+    std::stringstream m_ss;
 };
 

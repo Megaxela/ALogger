@@ -1,7 +1,3 @@
-//
-// Created by megaxela on 11/8/17.
-//
-
 #include <fstream>
 #include <iostream>
 #include "Loggers/AsyncLogger.hpp"

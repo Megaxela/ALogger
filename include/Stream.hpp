@@ -1,7 +1,3 @@
-//
-// Created by megaxela on 11/8/17.
-//
-
 #pragma once
 
 
@@ -32,6 +28,7 @@ namespace Loggers
          * @param errorClass Next message error class.
          * @param filename Next message filename.
          * @param line Next message line.
+         * @param thread Thread id.
          * @param classname Next message classname.
          * @param function Next message funciton.
          */
@@ -39,7 +36,8 @@ namespace Loggers
                         AbstractLogger::ErrorClass errorClass,
                         const char* filename,
                         int line,
-                        const std::string& classname,
+                        std::thread::id thread,
+                        std::string classname,
                         const char* function);
 
         /**
@@ -57,6 +55,7 @@ namespace Loggers
         AbstractLogger::ErrorClass m_errorClass;
         const char* m_filename;
         int m_line;
+        std::thread::id m_thread;
         std::string m_classname;
         const char* m_function;
     };
@@ -80,7 +79,8 @@ namespace Loggers
                AbstractLogger::ErrorClass errorClass,
                const char* filename,
                int line,
-               const std::string& classname,
+               std::thread::id thread,
+               std::string classname,
                const char* function);
 
         /**
