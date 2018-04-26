@@ -4,6 +4,7 @@
 #include <cstdint>
 #include <algorithm>
 #include "Loggers/AbstractLogger.hpp"
+#include <LogsListener.hpp>
 
 AbstractLogger::AbstractLogger() :
     m_logsListeners(),
@@ -83,6 +84,12 @@ void AbstractLogger::log(AbstractLogger::ErrorClass errorClass,
             ),
             m_logsListeners.end()
     );
+
+    // Adding data to logs listener
+    for (auto&& listener : m_logsListeners)
+    {
+        listener->newMessage(messageObject);
+    }
 
     onNewMessage(messageObject);
 }
