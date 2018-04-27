@@ -18,7 +18,7 @@ void Loggers::BasicLogger::onNewMessage(const AbstractLogger::Message& message)
     }
 
     // Generating string
-    auto msg = std::move(messageToString(message));
+    auto msg = messageToString(message);
 
     // Writing to file first (minimumFileOutputErrorClass is not thread safe)
     if (message.errorClass >= minimumFileOutputErrorClass())
