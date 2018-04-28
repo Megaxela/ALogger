@@ -103,7 +103,7 @@ void AbstractLogger::log(AbstractLogger::ErrorClass errorClass,
 
 std::string AbstractLogger::messageToString(const AbstractLogger::Message& message)
 {
-    m_ss.seekp(std::ios::beg);
+    m_ss.str(std::string());
 
     for (auto&& cache : m_formatCache)
     {
