@@ -1,6 +1,11 @@
 # Simple C++ logging system
 It's pure C++11 based simple logging system.
 
+## Status
+| Linux CMake(Travis) | Coverage |
+|---------------------|----------|
+| [![Build Status](https://travis-ci.com/Megaxela/ALogger.svg?branch=master)](https://travis-ci.com/Megaxela/ALogger) | None |
+
 ## Build
 It's CMake based project, it can be used as 
 subproject (`add_subdirectory`) in your CMake project.
@@ -13,14 +18,12 @@ Steps to build it:
 1. Create build folder `mkdir build`
 1. Go into build folder `cd build`
 1. Setup project: `cmake ..`
-1. Build library: `cmake --build` or `make`
+    1. If you want to build tests and benchmarks - add `-DALOGGER_BUILD_BENCHMARK_AND_TESTS=On -DBENCHMARK_ENABLE_TESTING=Off`
+1. Build library: `cmake --build .` or `make`
 
 ## Usage example
 First of all it's logging system, so you can setup it globally or use 
 separately.
-
-### Separately example
-
 
 ### Global example
 ```cpp

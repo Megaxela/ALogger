@@ -5,8 +5,7 @@ LoggerPtr CurrentLogger::i()
 {
     if (m_logger == nullptr)
     {
-        std::cerr << "There is no active logger." << std::endl;
-        return nullptr;
+        throw std::runtime_error("There is no active logger");
     }
 
     return m_logger;

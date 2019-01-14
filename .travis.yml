@@ -1,0 +1,58 @@
+dist: xenial
+language: cpp
+
+os:
+  - linux
+
+branches:
+  only:
+    - master
+
+addons:
+  apt:
+    packages:
+      - cmake
+      - cmake-data
+
+compiler:
+  - clang
+  - gcc
+
+git:
+  submodules: false
+
+before_install:
+  - gem install coveralls-lcov
+  - git submodule update --init
+
+install:
+  - | # Setting env values
+    export SOURCE_ROOT="${TRAVIS_BUILD_DIR}"
+    export BUILD_ROOT="${TRAVIS_BUILD_DIR}/cmake-build"
+    export BUILD_OPTIONS="-DALOGGER_BUILD_BENCHMARK_AND_TESTS=On -DBENCHMARK_ENABLE_TESTING=Off"
+    export COMPILER="${CC}"
+
+  - | # If it's gcc - connect lcov
+    echo "No lcov support for now"
+
+  - | # Installing lcov
+    if [ "$COMPILER" = "gcc" ]
+    then
+      git clone https://github.com/linux-test-project/lcov.git
+      mkdir -p /tmp/usr
+      make -C lcov/ PREFIX=/tmp/usr install
+      /tmp/usr/bin/lcov --version
+    fi
+
+script:
+  # Creating build root
+  - mkdir --parent $BUILD_ROOT
+
+  # Configuring project
+  - cmake $BUILD_OPTIONS -B$BUILD_ROOT -H$SOURCE_ROOT
+
+  # Build project
+  - cmake --build $BUILD_ROOT --target all -- -j4
+
+  # Running tests
+  - cd $BUILD_ROOT/tests/ && ./ALoggerTest
