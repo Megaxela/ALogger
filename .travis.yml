@@ -10,9 +10,13 @@ branches:
 
 addons:
   apt:
+    sources:
+      - ubuntu-toolchain-r-test
     packages:
       - cmake
       - cmake-data
+      - g++-8
+      - gcc-8
 
 compiler:
   - clang
@@ -43,6 +47,10 @@ install:
       make -C lcov/ PREFIX=/tmp/usr install
       /tmp/usr/bin/lcov --version
     fi
+
+  - | # Setting real compilers
+    if [ "$COMPILER" = "gcc"   ]; then export CXX="g++-8" CC="gcc-8"; fi
+    if [ "$COMPILER" = "clang" ]; then export CXX="/usr/local/clang-7.0.0/bin/clang++" CC="/usr/local/clang-7.0.0/bin/clang"; fi
 
 script:
   # Creating build root
