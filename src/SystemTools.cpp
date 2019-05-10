@@ -112,7 +112,11 @@ bool SystemTools::Path::fileExists(const std::string &p)
 #endif
 
 #ifdef OS_WINDOWS
-    return !(INVALID_FILE_ATTRIBUTES == GetFileAttributes(p.c_str()) && GetLastError() == ERROR_FILE_NOT_FOUND);
+
+    auto err = GetFileAttributes(p.c_str());
+    auto lastErr = GetLastError();
+
+    return !(INVALID_FILE_ATTRIBUTES == err && (lastErr == ERROR_FILE_NOT_FOUND || lastErr == ERROR_PATH_NOT_FOUND));
 #endif
 }
 
