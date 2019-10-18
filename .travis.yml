@@ -33,7 +33,7 @@ install:
   - | # Setting env values
     export SOURCE_ROOT="${TRAVIS_BUILD_DIR}"
     export BUILD_ROOT="${TRAVIS_BUILD_DIR}/cmake-build"
-    export BUILD_OPTIONS="-DALOGGER_BUILD_BENCHMARK_AND_TESTS=On -DBENCHMARK_ENABLE_TESTING=Off"
+    export BUILD_OPTIONS="-DALOGGER_BUILD_TESTS=On -DBENCHMARK_ENABLE_TESTING=Off"
     export COMPILER="${CC}"
 
   - | # If it's gcc - connect lcov
