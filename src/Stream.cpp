@@ -6,7 +6,7 @@ Loggers::StreamBuffer::StreamBuffer() :
     m_errorClass(AbstractLogger::ErrorClass::Unknown),
     m_filename(nullptr),
     m_line(0),
-    m_thread(0),
+    m_thread(),
     m_classname(),
     m_function(nullptr)
 {

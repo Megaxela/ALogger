@@ -22,7 +22,6 @@ public:
 protected:
     void onNewMessage(const Message& message) override
     {
-//        auto msg = messageToString(message);
     }
 };
 

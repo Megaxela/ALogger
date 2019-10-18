@@ -8,7 +8,7 @@
 #define ErrorF(L)    Loggers::Stream(L, AbstractLogger::ErrorClass::Error,   __FILENAME__, __LINE__, std::this_thread::get_id(), std::string(), __FUNCTION__)
 
 
-TEST(ALogger, SetFormat)
+TEST(ALogger, Basic)
 {
     auto logger = std::make_shared<Loggers::BasicLogger>();
 
@@ -18,5 +18,5 @@ TEST(ALogger, SetFormat)
 int main(int argc, char** argv)
 {
     ::testing::InitGoogleTest(&argc, argv);
-    RUN_ALL_TESTS();
+    return RUN_ALL_TESTS();
 }

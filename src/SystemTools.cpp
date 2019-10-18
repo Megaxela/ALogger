@@ -3,11 +3,10 @@
 
 #ifdef OS_LINUX
     #include <errno.h>
-#include <cstring>
+    #include <cstring>
     #include <sstream>
     #include <sys/stat.h>
     #include <fstream>
-
 #endif
 #ifdef OS_WINDOWS
     #include <windows.h>
@@ -39,15 +38,17 @@ std::string SystemTools::getLastErrorString()
                 FORMAT_MESSAGE_ALLOCATE_BUFFER |
                 FORMAT_MESSAGE_FROM_SYSTEM |
                 FORMAT_MESSAGE_IGNORE_INSERTS,
-                NULL,
+                nullptr,
                 (DWORD) error,
                 MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
                 (LPTSTR) &lpMsgBuf,
-                0, NULL );
+                0,
+                nullptr
+        );
 
         if (bufLen)
         {
-            LPCSTR lpMsgStr = (LPCSTR)lpMsgBuf;
+            auto lpMsgStr = (LPCSTR)lpMsgBuf;
             std::string result(lpMsgStr, lpMsgStr+bufLen);
 
             LocalFree(lpMsgBuf);
@@ -86,7 +87,6 @@ std::string SystemTools::getFileContent(const std::string &path)
 
 #ifdef OS_WINDOWS
     #define PATH_SEPARATOR ('\\')
-
 #endif
 #ifdef OS_LINUX
     #define PATH_SEPARATOR ('/')
@@ -112,7 +112,6 @@ bool SystemTools::Path::fileExists(const std::string &p)
 #endif
 
 #ifdef OS_WINDOWS
-
     auto err = GetFileAttributes(p.c_str());
     auto lastErr = GetLastError();
 

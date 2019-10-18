@@ -56,7 +56,7 @@ public:
             timePoint(),
             errorClass(ErrorClass::Unknown),
             message(),
-            thread(0),
+            thread(),
             filename(nullptr),
             context(),
             line(0)
@@ -281,7 +281,7 @@ private:
 
         FormatCache(Type type, std::string_view view) :
             type(type),
-            value(std::move(view))
+            value(view)
         {}
 
         Type type;

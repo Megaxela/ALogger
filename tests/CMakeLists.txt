@@ -17,3 +17,16 @@ target_link_libraries(ALoggerTest
         gtest
         ALogger
 )
+
+if (EMSCRIPTEN)
+    # Cause we need page, instead of plain js
+    set_target_properties(ALoggerTest
+        PROPERTIES
+            SUFFIX ".html"
+    )
+
+    # Application WILL be closed
+    target_link_libraries(ALoggerTest
+        "-s\ EXIT_RUNTIME=1"
+    )
+endif()
