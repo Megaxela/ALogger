@@ -7,6 +7,7 @@
 #include <vector>
 #include <sstream>
 #include <thread>
+#include <string_view>
 
 #ifdef OS_LINUX
 #define __FILENAME__ (strrchr(__FILE__, '/') ? strrchr(__FILE__, '/') + 1 : __FILE__)
